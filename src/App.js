@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import BookList from './components/BookList';
+import AddBook from './components/AddBook';
+import UpdateBook from './components/UpdateBook';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [refresh, setRefresh] = useState(false);
+
+    const handleRefresh = () => {
+        setRefresh(!refresh);
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await fetch(`http://localhost:5000/books/${id}`, { method: 'DELETE' });
+            handleRefresh();
+        } catch (error) {
+            console.error('Error deleting book:', error);
+        }
+    };
+
+    return (
+        <div className="App">
+            <BookList onDelete={handleDelete} />
+            <AddBook onAdd={handleRefresh} />
+            <UpdateBook onUpdate={handleRefresh} />
+        </div>
+    );
 }
 
 export default App;
