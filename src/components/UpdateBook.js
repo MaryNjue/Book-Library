@@ -7,19 +7,28 @@ const UpdateBook = ({ onUpdate }) => {
     const [author, setAuthor] = useState('');
     const [year, setYear] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.put(`http://localhost:5000/books/${bookId}`, { title, author, year });
-            setBookId('');
-            setTitle('');
-            setAuthor('');
-            setYear('');
-            onUpdate();
-        } catch (error) {
-            console.error('Error updating book:', error);
-        }
-    };
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+        
+            console.log('Submitting book update:', { title, author, year, bookId }); // Log the submitted data
+        
+            if (!title || !author || !year) {
+                console.error('Validation failed: Missing fields');
+                return;
+            }
+        
+            try {
+                const response = await axios.put(`http://localhost:5000/books/${bookId}`, {
+                    title,
+                    author,
+                    year,
+                });
+                console.log('Book updated successfully:', response.data);
+            } catch (error) {
+                console.error('Error updating book:', error.response?.data || error.message);
+            }
+        };
+        
 
     return (
         <form onSubmit={handleSubmit}>
