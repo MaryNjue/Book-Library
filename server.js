@@ -59,28 +59,30 @@ app.get('/books', async (req, res) => {
 
 
 // 3. Update a Book
-app.post('/books', async (req, res) => {
-    const { title, author, year } = req.body;
-    console.log('Received request to add a new book:', req.body);
+app.put('/books/:id', async (req, res) => {
+    const { id } = req.params; // Get the ID from the URL
+    const { title, author, year } = req.body; // Get the data from the request body
 
     // Validate input
     if (!title || !author || !year) {
-        console.error('Validation failed: Missing fields');
-        return res.status(400).json({ error: 'All fields are required' });
+        return res.status(400).json({ error: 'All fields (title, author, year) are required' });
     }
 
     try {
         const result = await pool.query(
-            'INSERT INTO books (title, author, year) VALUES ($1, $2, $3) RETURNING *',
-            [title, author, year]
+            'UPDATE books SET title = $1, author = $2, year = $3 WHERE id = $4 RETURNING *',
+            [title, author, year, id]
         );
-        console.log('Book added successfully:', result.rows[0]);
-        res.status(201).json(result.rows[0]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        res.json(result.rows[0]);
     } catch (error) {
-        console.error('Error adding book:', error.message);
+        console.error('Error updating book:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
+
 
 
 // 4. Delete a Book
